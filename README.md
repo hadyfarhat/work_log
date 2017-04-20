@@ -1,3 +1,6 @@
+### Run the program
+`python play.py`
+
 # Work Log
 A terminal application wher;e you can create or edit your entries.
 An entry can be searched by:
