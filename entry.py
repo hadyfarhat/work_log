@@ -7,8 +7,17 @@ class Entry:
     notes = None
     created_at = None
 
-    def __init__(self):
-        self.get_task_details()
+    def __init__(self, task_name=None, minutes=None,
+                 created_at=None, notes=None):
+        if task_name:
+            self.task_name = task_name
+            self.minutes = int(minutes)
+            self.created_at = datetime.datetime.strptime(
+                                                    created_at,
+                                                    "%Y-%m-%d %H:%M:%S.%f")
+            self.notes = notes
+        else:
+            self.get_task_details()
 
     # get task name, num of minutes and notes if required
     def get_task_details(self):
@@ -22,11 +31,14 @@ class Entry:
     def get_minutes(self):
         while True:
             minutes = input("Enter the number of minutes spent on the task: ")
-            try:
-                minutes = int(minutes)
-                return minutes
-            except ValueError:
-                print("Please Enter a valid num of minutes")
+            if minutes:
+                try:
+                    minutes = int(minutes)
+                    return minutes
+                except ValueError:
+                    print("Please Enter a valid num of minutes")
+            else:
+                print("Please enter a valid input. ex 12")
 
     # print task info
     def get_task_info(self):
