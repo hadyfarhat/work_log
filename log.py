@@ -1,5 +1,5 @@
+import re
 import datetime
-import sys
 
 from entry import Entry
 
@@ -35,20 +35,18 @@ class Log():
     """
 
     def __init__(self):
-        test = input("[t]esting or [r]unning >>> ")
-        if test == "r":
-            while True:
-                self.game_menu()
-                input("Press Enter to continue")
-                clear()
-        else:
-            # testing
-            self.game_menu()
+        while True:
+            if self.game_menu() == "quit":
+                break
+            input("Press Enter to continue")
+            clear()
 
     def game_menu(self):
         print(self.menu)
         user_option = self.get_main_menu_option()
         # run the command the user entered
+        if user_option == "5":
+            return "quit"
         self.run(int(user_option))
 
     # user should enter either 1 or 2
@@ -57,7 +55,6 @@ class Log():
             user_option = input("Enter an option >>> ")
             if user_option:
                 if user_option in ["1", "2", "3", "4", "5"]:
-                    print("Good option")
                     return user_option
                 else:
                     print("Please enter either of these [1,2,3,4,5]")
@@ -77,7 +74,7 @@ class Log():
         elif command == 4:
             self.edit_entry()
         elif command == 5:
-            sys.exit()
+            print("you quit")
 
     # search for previous entries
     def search_entries(self):
@@ -90,7 +87,7 @@ class Log():
         elif menu_option == 3:
             self.find_by_exact_search()
         elif menu_option == 4:
-            pass
+            self.find_by_pattern()
         elif menu_option == 5:
             self.find_by_date_range()
 
@@ -132,7 +129,16 @@ class Log():
                         entries_found.append(entry)
 
         if entries_found:
-            self.print_entries_found(entries_found, "date")
+            entries = {}
+            for i in range(len(entries_found)):
+                entries[i] = entries_found[i]
+
+            # user should enter a valid option
+            while True:
+                self.print_entries_found(entries, "date")
+                option = self.get_option(entries)
+                self.edit_entry(entries[option])
+                break
         else:
             print("No entries were found based"
                   "on your date search {}".format(date_search_format))
@@ -154,7 +160,15 @@ class Log():
                 entries_found.append(entry)
 
         if entries_found:
-            self.print_entries_found(entries_found, "time")
+            entries = {}
+            for i in range(len(entries_found)):
+                entries[i] = entries_found[i]
+            # user should enter a valid option
+            while True:
+                self.print_entries_found(entries, "date")
+                option = self.get_option(entries)
+                self.edit_entry(entries[option])
+                break
         else:
             print("No entries were found based on your "
                   "time search {}".format(time_search))
@@ -170,10 +184,48 @@ class Log():
                         entries_found.append(entry)
 
         if entries_found:
-            self.print_entries_found(entries_found, "exact entry")
+            entries = {}
+            for i in range(len(entries_found)):
+                entries[i] = entries_found[i]
+            # user should enter a valid option
+            while True:
+                self.print_entries_found(entries, "date")
+                option = self.get_option(entries)
+                self.edit_entry(entries[option])
+                break
         else:
             print("No entries were found based on your "
                   "exact entry search {}".format(entry_search))
+
+    # find by regex patter
+    def find_by_pattern(self):
+        regex = input("Enter your regex >>> ")
+        entries_found = []
+        # check if the user entered a regex
+        if regex:
+            for entry in self.entries:
+                if (re.findall(r'{}'.format(regex), entry.task_name) or
+                        re.findall(r'{}'.format(regex), entry.notes)):
+                        entries_found.append(entry)
+        else:
+            print("Please enter a regex")
+
+        if entries_found:
+            if entries_found:
+                entries = {}
+                for i in range(len(entries_found)):
+                    entries[i] = entries_found[i]
+                # user should enter a valid option
+                while True:
+                    self.print_entries_found(entries, "date")
+                    option = self.get_option(entries)
+                    self.edit_entry(entries[option])
+                    break
+            else:
+                print("No entries were found based on your "
+                      "exact entry search {}".format(regex))
+        else:
+            print("No entries were found based on your pattern")
 
         # find by date range For example between 01/01/2016 and 12/31/2016.
     def find_by_date_range(self):
@@ -195,7 +247,7 @@ class Log():
             second_date_format = input("Enter the second date mm/dd/yyyy >>> ")
             try:
                 second_date = datetime.datetime.strptime(second_date_format,
-                                                        "%m/%d/%Y")
+                                                         "%m/%d/%Y")
                 break
             except ValueError:
                 print("Please enter a valid date")
@@ -218,66 +270,97 @@ class Log():
                             entries_found.append(entry)
 
         if entries_found:
-            for entry in entries_found:
-                self.display_entry(entry)
+            entries = {}
+            for i in range(len(entries_found)):
+                entries[i] = entries_found[i]
+            # user should enter a valid option
+            while True:
+                self.print_entries_found(entries, "date")
+                option = self.get_option(entries)
+                self.edit_entry(entries[option])
+                break
         else:
             print("No entries were found")
 
     # printes all entries that match the user's input
-    def print_entries_found(self, entries_found, search_type):
-        new_line()
-        print("These entries were found based on your {} search ".format(
-                                                                search_type
-                                                                ))
-        print("Note the time displayed is in a 24 hour clock format")
+    def print_entries_found(self, entries, search_type=None, delete=False):
+        if not delete:
+            new_line()
+            if search_type:
+                print("These entries were found based "
+                       "on your {} search ".format(search_type))
+            else:
+                print("These entries were found: ")
+            print("Note the time displayed is in a 24 hour clock format")
         print(30*"=")
         new_line()
-        for entry_found in entries_found:
-            self.display_entry(entry_found)
+        for key, value in entries.items():
+            print("{}: {}".format(key, value))
 
     # delete an entry
-    # def 
+    def delete_entry(self):
+        entries = {}
+        for i in range(len(self.entries)):
+            entries[i] = self.entries[i]
+
+        if entries:
+            # user should enter a valid option
+            while True:
+                print("Which entry you wish to delelte ?")
+                self.print_entries_found(entries, delete=True)
+                option = self.get_option(entries)
+                del self.entries[option]
+                break
+        else:
+            print("No entries were found")
 
     # enable the user to change date, task_name, time_spent, notes
-    def edit_entry(self):
+    def edit_entry(self, entry_search=None):
         if self.entries:
             while True:
-                entry_found = False
-                entry_search = input("Enter an entry's task name: ")
-                count = 0
-                for entry in self.entries:
-                    if entry.task_name == entry_search:
-                        entry_found = True
-                        entry_search = entry
-                        if entry_found:
+                # if no entry is passed to the function
+                # => get an entry
+                if not entry_search:
+                    entry_found = False
+                    entries = {}
+                    for i in range(len(self.entries)):
+                        entries[i] = self.entries[i]
+
+                    if entries:
+                        # user should enter a valid option
+                        while True:
+                            print("Which entry you wish to edit ?")
+                            self.print_entries_found(entries, search_type=None)
+                            option = self.get_option(entries)
+                            entry_search = self.entries[option]
                             break
-                        count+=1
-                        
-                if not entry_found:
-                    print("No entries were found basded on that search")
-                    answer = input("[S]earch again | [B]ack to menu: ")
-                    if answer.lower() == "b":
-                        break
+                    else:
+                        print("No entries were found")
+                # if an entry is passed to the function
+                # set entry_found to True
                 else:
+                    entry_found = True
+
+                if entry_found:
                     clear()
-                    self.display_entry(entry_search)
                     # keep looping till user enters valid option
                     while True:
+                        self.display_entry(entry_search)
                         print("1- Change date")
                         print("2- Change task name")
                         print("3- Change time spent")
-                        print("4- Change notes (if the entry has one)")
+                        print("4- Change notes")
                         print("5- Return back to menu")
                         option = input("Enter an option: ")
                         if option in ["1", "2", "3", "4", "5"]:
                             if option == "1":
-                                self.edit_entry_date(count)
+                                self.edit_entry_date(entry_search)
                             elif option == "2":
-                                self.edit_entry_task_name(count)
+                                self.edit_entry_task_name(entry_search)
                             elif option == "3":
-                                self.edit_entry_time_spent(count)
+                                self.edit_entry_time_spent(entry_search)
                             elif option == "4":
-                                self.edit_entry_notes(count)
+                                self.edit_entry_notes(entry_search)
                             elif option == "5":
                                 return None
                         else:
@@ -290,7 +373,7 @@ class Log():
             print("No entries were found")
 
     # change date; helper function for edit_entry()
-    def edit_entry_date(self, count):
+    def edit_entry_date(self, entry_search):
         # user should enter a valid date
         while True:
             user_date_format = input("Enter date mm/dd/yyyy >>> ")
@@ -302,7 +385,9 @@ class Log():
                 print("Please enter a valid date")
 
         print("Replacing your entry's date ....")
-        self.entries[count].created_at =self.entries[count].created_at.replace(
+        count = self.get_index(entry_search)
+        self.entries[count].created_at = self.entries[
+                                               count].created_at.replace(
                                                year=user_date.year,
                                                month=user_date.month,
                                                day=user_date.day)
@@ -310,15 +395,16 @@ class Log():
                                             self.entries[count].created_at))
 
     # change entry task name; helper function for edit_entry()
-    def edit_entry_task_name(self, count):
+    def edit_entry_task_name(self, entry_search):
         new_name = input("Enter a new name for your entry >>> ")
         print("Changing your entry's name")
+        count = self.get_index(entry_search)
         self.entries[count].task_name = new_name
         print("Your entry's name was successfully changed to {}".format(
                                                 self.entries[count].task_name))
 
     # change entry time spent; helper function for edit_entry()
-    def edit_entry_time_spent(self, count):
+    def edit_entry_time_spent(self, entry_search):
         # user should enter a number
         while True:
             new_time = input("Enter the # of minutes spent on the entry >>> ")
@@ -328,15 +414,16 @@ class Log():
             except ValueError:
                 print("Please enter a number")
                 input("Press Enter to continue... ")
-                clear()
         print("Changing your entry's time spent ...")
+        count = self.get_index(entry_search)
         self.entries[count].minutes = new_time
         print("Your entry's time spent was successfully changed to {}".format(
                                                 self.entries[count].minutes))
 
     # change entry notes; helper function for edit_entry()
-    def edit_entry_notes(self, count):
+    def edit_entry_notes(self, entry_search):
             new_note = input("Enter your new note: ")
+            count = self.get_index(entry_search)
             self.entries[count].notes = new_note
 
     # display entry with date, task name, time spent, and notes information.
@@ -353,6 +440,23 @@ class Log():
                   "added to this entry")
         print(20*"-")
 
+    # get index position of an entry from self.entries
+    def get_index(self, entry_search):
+        count = 0
+        for entry in self.entries:
+            if entry == entry_search:
+                return count
+            count += 1
 
-
-
+    # get option
+    def get_option(self, entries):
+        while True:
+            option = input("Choose one of the above >>> ")
+            try:
+                option = int(option)
+                if option in range(len(entries)):
+                    return option
+                else:
+                    print("Please enter a valid entry")
+            except ValueError:
+                print("Please enter a valid option")

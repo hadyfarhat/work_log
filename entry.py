@@ -44,3 +44,11 @@ class Entry:
         else:
             self.notes = None
             print("Alright. No notes are added")
+
+    def __str__(self):
+        return """
+        Task Name: {}
+        Created At: {}
+        Minutes Spend: {}
+        Notes: {}
+        """.format(self.task_name, self.created_at, self.minutes, self.notes)
