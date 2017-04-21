@@ -17,7 +17,7 @@ def new_line():
     print("\n")
 
 
-class Log():
+class Log:
     entries = []
 
     # menu message
@@ -219,20 +219,20 @@ class Log():
                   "exact entry search {}".format(entry_search))
 
     def find_by_pattern(self):
-        """find by regex patter"""
+        """find by regex pattern"""
         regex = input("Enter your regex >>> ")
-        entries_found = []
-        # check if the user entered a regex
+        # regex = re.compile(r'{}'.format(regex), re.X)
         if regex:
+            entries_found = []
             for entry in self.entries:
-                try:
-                    if (re.findall(r"""{}""".format(regex), entry.task_name) or
-                            re.findall(r"""{}""".format(regex), entry.notes)):
-                            entries_found.append(entry)
-                except sre_constants.error:
-                    pass
+                # if (re.findall(regex, entry.task_name) or
+                #         re.findall(regex, entry.notes)):
+                #         entries_found.append(entry)
+                if (re.findall(r'{}'.format(regex), entry.task_name) or
+                        re.findall(r'{}'.format(regex), entry.notes)):
+                        entries_found.append(entry)
         else:
-            print("Please enter a regex")
+            print("Please enter a  valid regex")
 
         if entries_found:
             if entries_found:

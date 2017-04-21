@@ -1,14 +1,13 @@
 import datetime
 
-
 class Entry:
-    task_name = None
+    task_name = ""
     minutes = None
-    notes = None
+    notes = ""
     created_at = None
 
     def __init__(self, task_name=None, minutes=None,
-                 created_at=None, notes=None):
+                 created_at=None, notes=""):
         if task_name:
             self.task_name = task_name
             self.minutes = int(minutes)
@@ -54,7 +53,7 @@ class Entry:
             note = input("Enter your note >>> ")
             return note
         else:
-            self.notes = None
+            return ""
             print("Alright. No notes are added")
 
     def __str__(self):
