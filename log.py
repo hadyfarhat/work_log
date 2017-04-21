@@ -226,8 +226,8 @@ class Log():
         if regex:
             for entry in self.entries:
                 try:
-                    if (re.findall(r'{}'.format(regex), entry.task_name) or
-                            re.findall(r"{}".format(regex), entry.notes)):
+                    if (re.findall(r"""{}""".format(regex), entry.task_name) or
+                            re.findall(r"""{}""".format(regex), entry.notes)):
                             entries_found.append(entry)
                 except sre_constants.error:
                     pass
