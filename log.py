@@ -9,7 +9,7 @@ from entry import Entry
 
 # clear screen funciton
 def clear():
-    print("\033c", end="")
+    os.system('cls' if 'nt' in os.name else 'clear')
 
 
 # prints a new line
