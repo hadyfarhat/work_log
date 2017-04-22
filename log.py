@@ -221,15 +221,13 @@ class Log:
     def find_by_pattern(self):
         """find by regex pattern"""
         regex = input("Enter your regex >>> ")
-        # regex = re.compile(r'{}'.format(regex), re.X)
+        regex = re.compile(regex, re.X)
+        entries_found = []
+        # check if the user entered a regex
         if regex:
-            entries_found = []
             for entry in self.entries:
-                # if (re.findall(regex, entry.task_name) or
-                #         re.findall(regex, entry.notes)):
-                #         entries_found.append(entry)
-                if (re.findall(r'{}'.format(regex), entry.task_name) or
-                        re.findall(r'{}'.format(regex), entry.notes)):
+                if (re.findall(regex, entry.task_name) or
+                        re.findall(regex, entry.notes)):
                         entries_found.append(entry)
         else:
             print("Please enter a  valid regex")
